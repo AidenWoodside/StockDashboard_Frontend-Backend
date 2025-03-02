@@ -1,0 +1,10 @@
+<!-- src/app/components/stock-display/stock-display.component.html -->
+<div *ngIf="getDictSize() > 0; else noData">
+  <div *ngFor="let stock of mapEntries">
+    <h2>{{ stock[0] }} - {{ stock[1] | currency }}</h2>
+  </div>
+</div>
+
+<ng-template #noData>
+  <p>No stock data available yet.</p>
+</ng-template>
