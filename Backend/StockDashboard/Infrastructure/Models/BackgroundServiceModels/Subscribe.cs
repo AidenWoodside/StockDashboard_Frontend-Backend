@@ -1,4 +1,4 @@
-﻿namespace StockDashboard.API.Services.background.models;
+﻿namespace StockDashboard.Infrastructure.Models.BackgroundServiceModels;
 
 public class Subscribe
 {

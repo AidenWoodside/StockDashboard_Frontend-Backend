@@ -1,44 +1,54 @@
-using StockDashboard.API.Hubs;
 using StockDashboard.API.Services;
-using StockDashboard.API.Services.background;
-using StockDashboard.Infrastructure.Providers;
+using StockDashboard.Domain.BackgroundServices;
+using StockDashboard.Domain.Hubs;
+using StockDashboard.Infrastructure.Providers.MarketData;
+using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
+using StockDashboard.Infrastructure.Providers.MarketData.Schwab;
+using StockDashboard.Infrastructure.Providers.Trading.Schwab;
 using StockDashboard.Infrastructure.Repositories;
 using StockDashboard.Infrastructure.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+var services = WebApplication.CreateBuilder(args).Services;
+
+services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Register Application and Domain services
-builder.Services.AddSingleton<IStockService, StockService>();
+services.AddSingleton<IStockService, StockService>();
 
 // Register the Infrastructure
-builder.Services.AddSingleton<IStockRepository, StockRepository>();
-builder.Services.AddSingleton<IStockUtility, StockUtility>();
-builder.Services.AddTransient<IMarketDataProvider, MarketDataProvider>();
-builder.Services.AddHttpClient<IMarketDataProvider, MarketDataProvider>();
+services.AddSingleton<IStockRepository, StockRepository>();
+services.AddSingleton<IStockUtility, StockUtility>();
+
+//Register Providers
+services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
+services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
+
+services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
+services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
+
+services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 
 // Register SignalR
-builder.Services.AddSignalR();
+services.AddSignalR();
 
 // Register the background service that broadcasts stock updates
-builder.Services.AddHostedService<StockTickerHostedService>();
+services.AddHostedService<StockTickerHostedService>();
 
 //Add Controllers
-builder.Services.AddControllers().AddJsonOptions(options =>
+services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
 
 // Register Swagger/OpenAPI services
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 
 
 // Configure CORS to allow your Angular app's URL
-builder.Services.AddCors(options =>
+services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {

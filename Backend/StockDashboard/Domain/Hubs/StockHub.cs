@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace StockDashboard.API.Hubs;
+namespace StockDashboard.Domain.Hubs;
 
 public class StockHub : Hub
 {

@@ -1,5 +1,5 @@
-﻿using StockDashboard.API.Services.background.models;
-using StockDashboard.Domain.Models;
+﻿using StockDashboard.Domain.Models;
+using StockDashboard.Infrastructure.Models.BackgroundServiceModels;
 
 namespace StockDashboard.Infrastructure.Mappers;
 using AutoMapper;

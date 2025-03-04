@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace StockDashboard.API.Services.background.models;
+﻿namespace StockDashboard.Infrastructure.Models.BackgroundServiceModels;
 
 public class TradingResponse
 {
@@ -53,7 +51,7 @@ public class MarketData()
 }
 /*
  *
- *     public string T { get; set; }
+ *  public string T { get; set; }
     public string S { get;  set;}
     public string ax { get;  set;}
     public decimal ap { get;  set;}

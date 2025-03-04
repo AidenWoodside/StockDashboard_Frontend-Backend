@@ -2,16 +2,14 @@
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using StockDashboard.API.Hubs;
-using StockDashboard.API.Services.background.models;
+using StockDashboard.Domain.Hubs;
 using StockDashboard.Domain.Models;
+using StockDashboard.Infrastructure.Models.BackgroundServiceModels;
 using StockDashboard.Infrastructure.Utilities;
-using Formatting = System.Xml.Formatting;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace StockDashboard.API.Services.background;
+namespace StockDashboard.Domain.BackgroundServices;
 
 public class StockTickerHostedService(
     IHubContext<StockHub> hubContext,
