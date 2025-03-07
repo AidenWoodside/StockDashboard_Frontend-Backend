@@ -13,4 +13,9 @@ public class SchwabMarketDataProvider : ISchwabMarketDataProvider
     {
         throw new NotImplementedException();
     }
+
+    public void test()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,6 +1,8 @@
 using StockDashboard.API.Services;
 using StockDashboard.Domain.BackgroundServices;
 using StockDashboard.Domain.Hubs;
+using StockDashboard.Infrastructure.Configs;
+using StockDashboard.Infrastructure.Models;
 using StockDashboard.Infrastructure.Providers.MarketData;
 using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
 using StockDashboard.Infrastructure.Providers.MarketData.Schwab;
@@ -12,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 var services = WebApplication.CreateBuilder(args).Services;
 
+//Set Configs
+
+
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 // Register Application and Domain services
@@ -22,11 +27,21 @@ services.AddSingleton<IStockRepository, StockRepository>();
 services.AddSingleton<IStockUtility, StockUtility>();
 
 //Register Providers
-services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
-services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
-
-services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
-services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
+switch (builder.Configuration.GetValue<string>("MarketDataProvider"))
+{
+    case "Alpaca":
+        services.Configure<MarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProvider"));
+        services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
+        services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
+        break;
+    case "Schwab":
+        services.Configure<MarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProvider"));
+        services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
+        services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
+        break;
+    default:
+        throw new Exception($"Unknown MarketDataProvider: {builder.Configuration.GetValue<string>("MarketDataProvider")}");
+}
 
 services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 

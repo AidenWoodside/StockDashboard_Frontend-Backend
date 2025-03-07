@@ -2,9 +2,12 @@
 using System.Text;
 using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using StockDashboard.Domain.Hubs;
 using StockDashboard.Domain.Models;
+using StockDashboard.Infrastructure.Configs;
+using StockDashboard.Infrastructure.Constants;
 using StockDashboard.Infrastructure.Models.BackgroundServiceModels;
 using StockDashboard.Infrastructure.Utilities;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -15,7 +18,8 @@ public class StockTickerHostedService(
     IHubContext<StockHub> hubContext,
     IStockUtility stockUtility,
     ILogger<StockTickerHostedService> _logger,
-    IMapper mapper)
+    IMapper mapper,
+    IOptions<MarketDataProviderConfigs> marketDataProviderConfigs)
     : BackgroundService
 {
     //private readonly string key = "PKJRUWSCO8KM1SRS94VY";
@@ -33,6 +37,8 @@ public class StockTickerHostedService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        
+        
         var uri = new Uri("wss://stream.data.alpaca.markets/v2/test");
         using var ws = new ClientWebSocket();
         ws.Options.SetRequestHeader("APCA-API-KEY-ID", key);
