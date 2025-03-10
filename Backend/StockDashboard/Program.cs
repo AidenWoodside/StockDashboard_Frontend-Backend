@@ -1,7 +1,9 @@
+using StockDashboard.API.Controllers;
 using StockDashboard.API.Services;
 using StockDashboard.Domain.BackgroundServices;
 using StockDashboard.Domain.Hubs;
 using StockDashboard.Infrastructure.Configs;
+using StockDashboard.Infrastructure.Constants;
 using StockDashboard.Infrastructure.Models;
 using StockDashboard.Infrastructure.Providers.MarketData;
 using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
@@ -12,36 +14,38 @@ using StockDashboard.Infrastructure.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var services = WebApplication.CreateBuilder(args).Services;
+var services = builder.Services;
 
 //Set Configs
 
 
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Register Application and Domain services
-services.AddSingleton<IStockService, StockService>();
+//Register Providers
+services.AddSingleton<IWebsocketFactory, WebsocketFactory>();
+
+services.Configure<AlpacaMarketDataProviderConfigs>(builder.Configuration.GetRequiredSection("MarketDataProviders:Alpaca"));
+services.AddSingleton<AlpacaWebsocket>();
+
+services.Configure<SchwabMarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProviders:Schwab"));
+services.AddSingleton<SchwabWebsocket>();
+
+
+services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
+services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
+
+services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
+
+services.AddScoped<IWebsocketBase>(provider => provider.GetRequiredService<ISchwabWebsocket>());
+services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
+
 
 // Register the Infrastructure
-services.AddSingleton<IStockRepository, StockRepository>();
-services.AddSingleton<IStockUtility, StockUtility>();
+services.AddScoped<IStockRepository, StockRepository>();
+services.AddScoped<IStockUtility, StockUtility>();
 
-//Register Providers
-switch (builder.Configuration.GetValue<string>("MarketDataProvider"))
-{
-    case "Alpaca":
-        services.Configure<MarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProvider"));
-        services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
-        services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
-        break;
-    case "Schwab":
-        services.Configure<MarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProvider"));
-        services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
-        services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
-        break;
-    default:
-        throw new Exception($"Unknown MarketDataProvider: {builder.Configuration.GetValue<string>("MarketDataProvider")}");
-}
+// Register Application and Domain services
+services.AddScoped<IStockService, StockService>();
 
 services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 
@@ -49,13 +53,14 @@ services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 services.AddSignalR();
 
 // Register the background service that broadcasts stock updates
-services.AddHostedService<StockTickerHostedService>();
+services.AddHostedService<BackgroundMarketDataService>();
 
 //Add Controllers
 services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
+
 
 // Register Swagger/OpenAPI services
 services.AddEndpointsApiExplorer();
