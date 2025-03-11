@@ -6,11 +6,12 @@ using StockDashboard.Infrastructure.Repositories;
 
 namespace StockDashboard.Infrastructure.Utilities;
 
-public class StockUtility(IStockRepository stockRepository, IMarketDataProvider marketDataProvider) : IStockUtility
+public class StockUtility(IStockRepository stockRepository) : IStockUtility
 {
     public IEnumerable<Stock> GetStocks()
     {
-        return marketDataProvider.GetStocks(new List<string>());
+        return null;
+        //return marketDataProvider.GetStocks(new List<string>());
     }
 
     public void UpdateStocks()

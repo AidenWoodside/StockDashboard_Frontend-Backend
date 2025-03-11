@@ -9,11 +9,11 @@ using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
 
 namespace StockDashboard.Infrastructure.Providers.MarketData.Schwab;
 
-public class SchwabWebsocket(IOptions<SchwabMarketDataProviderConfigs> marketData, IMapper mapper) : WebsocketBase(marketData), ISchwabWebsocket
+public class SchwabWebsocket(IOptions<SchwabProviderConfigs> marketData, IMapper mapper) : WebsocketBase(marketData), ISchwabWebsocket
 {
     public override async Task Connect(CancellationToken stoppingToken)
     {
-        var configs = marketData.Value.Websocket;
+        var configs = marketData.Value.marketData.websocketUrl;
         //set headers for websocket connection
         Ws.Options.SetRequestHeader("APCA-API-KEY-ID", base.Key);
         Ws.Options.SetRequestHeader("APCA-API-SECRET-KEY", base.Value);

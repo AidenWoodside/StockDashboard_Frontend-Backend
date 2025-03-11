@@ -1,5 +1,5 @@
 ﻿namespace StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
 
-public interface IAlpacaMarketDataProvider : IMarketDataProvider
+public interface IAlpacaMarketDataProvider
 {
 }

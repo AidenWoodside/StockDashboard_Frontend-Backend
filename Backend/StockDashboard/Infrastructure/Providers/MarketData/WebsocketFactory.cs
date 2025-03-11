@@ -10,8 +10,8 @@ public class WebsocketFactory(
     public IWebsocketBase CreateWebsocket()
     {
         // Read the provider setting from configuration
-        string provider = configuration["CurrentDataProvider"]
-            ?? throw new NullReferenceException("CurrentDataProvider");
+        string provider = configuration["Providers:CurrentDataProvider"]
+            ?? throw new NullReferenceException("Providers:CurrentDataProvider");
 
         switch (provider)
         {

@@ -6,11 +6,11 @@ using StockDashboard.Infrastructure.Configs;
 
 namespace StockDashboard.Infrastructure.Providers.MarketData;
 
-public class WebsocketBase(IOptions<MarketDataProviderConfigs> websocketConfigs) : IWebsocketBase
+public abstract class WebsocketBase(IOptions<BaseProviderConfigs> websocketConfigs) : IWebsocketBase
 {
-    protected readonly string Key = websocketConfigs.Value.Websocket.key;
-    protected readonly string Value = websocketConfigs.Value.Websocket.value;
-    private readonly string _websocketUrl =  websocketConfigs.Value.Websocket.websocketUrl;
+    protected readonly string Key = websocketConfigs.Value.key;
+    protected readonly string Value = websocketConfigs.Value.value;
+    private readonly string _websocketUrl =  websocketConfigs.Value.marketData.websocketUrl;
     private byte[] _buffer = new byte[4096];
     protected ClientWebSocket Ws = new();
     public virtual async Task Connect(CancellationToken stoppingToken)
@@ -41,14 +41,7 @@ public class WebsocketBase(IOptions<MarketDataProviderConfigs> websocketConfigs)
         throw new NotImplementedException();
     }
 
-    public virtual async Task<List<Stock>> MapResponseToDomainModel(string response)
-    {
-        throw new NotImplementedException();
-    }
+    public abstract Task<List<Stock>> MapResponseToDomainModel(string response);
 
-    public virtual async Task SubscribeStock(List<Stock> stocks, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-    
+    public abstract Task SubscribeStock(List<Stock> stocks, CancellationToken cancellationToken);
 }

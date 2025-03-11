@@ -21,24 +21,26 @@ var services = builder.Services;
 
 services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+services.AddHttpClient();
+
 //Register Providers
 services.AddSingleton<IWebsocketFactory, WebsocketFactory>();
 
-services.Configure<AlpacaMarketDataProviderConfigs>(builder.Configuration.GetRequiredSection("MarketDataProviders:Alpaca"));
+services.Configure<AlpacaProviderConfigs>(builder.Configuration.GetRequiredSection("Providers:Alpaca"));
 services.AddSingleton<AlpacaWebsocket>();
 
-services.Configure<SchwabMarketDataProviderConfigs>(builder.Configuration.GetSection("MarketDataProviders:Schwab"));
+services.Configure<SchwabProviderConfigs>(builder.Configuration.GetSection("Providers:Schwab"));
 services.AddSingleton<SchwabWebsocket>();
 
 
 services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
-services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<IAlpacaMarketDataProvider>());
 
 services.AddScoped<ISchwabMarketDataProvider, SchwabMarketDataProvider>();
 
 services.AddScoped<IWebsocketBase>(provider => provider.GetRequiredService<ISchwabWebsocket>());
-services.AddScoped<IMarketDataProvider>(provider => provider.GetRequiredService<ISchwabMarketDataProvider>());
 
+services.AddScoped<ISchwabTokenProvider, SchwabTokenProvider>();
+services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 
 // Register the Infrastructure
 services.AddScoped<IStockRepository, StockRepository>();
@@ -82,7 +84,7 @@ services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline for Swagger in development
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>

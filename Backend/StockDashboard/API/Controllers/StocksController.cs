@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using StockDashboard.API.Services;
+using StockDashboard.Infrastructure.Providers.Trading.Schwab.Models;
 
 namespace StockDashboard.API.Controllers;
 
@@ -20,5 +21,19 @@ public class StocksController(IStockService stockService) : ControllerBase
     {
         var stocks = await stockService.GetStockBySymbol(symbol);
         return Ok(stocks);
+    }
+    
+    [HttpGet("/accounts")]
+    public async Task<List<SchwabAccountResponse>> GetAccounts()
+    {
+        var accounts = await stockService.GetAccounts();
+        return accounts;
+    }
+    
+    [HttpGet("/accounts/encrypted")]
+    public async Task<List<AccountNumberEncryptedResponse>> GetEncryptedAccounts()
+    {
+        var accounts = await stockService.GetEncryptedAccounts();
+        return accounts;
     }
 }

@@ -2,5 +2,7 @@
 
 public interface ISchwabTradingProvider
 {
+    Task<T> GetAccounts<T>();
     
+    Task<T> GetEncryptedAccounts<T>();
 }
