@@ -1,19 +1,12 @@
 ﻿using StockDashboard.Domain.Models;
 using StockDashboard.Infrastructure.Providers.Trading.Schwab;
 using StockDashboard.Infrastructure.Providers.Trading.Schwab.Models;
-using StockDashboard.Infrastructure.Repositories;
-using StockDashboard.Infrastructure.Utilities;
 
 namespace StockDashboard.API.Services;
 
-public class StockService(IStockUtility stockUtility, ISchwabTradingProvider schwabTradingProvider) : IStockService
+public class TradingService( ISchwabTradingProvider schwabTradingProvider) : ITradingService
 {
-    public IEnumerable<Stock> GetStocks() => stockUtility.GetStocks();
-    
-    public async Task<Stock> GetStockBySymbol(string symbol)
-    {
-        return await stockUtility.GetStockBySymbol(symbol);
-    }
+
 
     public async Task<List<SchwabAccountResponse>> GetAccounts()
     {

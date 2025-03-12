@@ -7,33 +7,19 @@ namespace StockDashboard.API.Controllers;
 
 [ApiController]
 [Route("/[controller]")]
-public class StocksController(IStockService stockService) : ControllerBase
+public class TradingController(ITradingService tradingService) : ControllerBase
 {
-    [HttpGet]
-    public IActionResult GetStocks()
-    {
-        var stocks = stockService.GetStocks();
-        return Ok(stocks);
-    }
-    
-    [HttpGet("{symbol}")]
-    public async Task<IActionResult> GetStocksBySymbol([FromRoute]string symbol)
-    {
-        var stocks = await stockService.GetStockBySymbol(symbol);
-        return Ok(stocks);
-    }
-    
     [HttpGet("/accounts")]
     public async Task<List<SchwabAccountResponse>> GetAccounts()
     {
-        var accounts = await stockService.GetAccounts();
+        var accounts = await tradingService.GetAccounts();
         return accounts;
     }
     
     [HttpGet("/accounts/encrypted")]
     public async Task<List<AccountNumberEncryptedResponse>> GetEncryptedAccounts()
     {
-        var accounts = await stockService.GetEncryptedAccounts();
+        var accounts = await tradingService.GetEncryptedAccounts();
         return accounts;
     }
 }

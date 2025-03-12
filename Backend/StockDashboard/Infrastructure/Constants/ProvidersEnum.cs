@@ -1,6 +1,6 @@
 ﻿namespace StockDashboard.Infrastructure.Constants;
 
-public enum CurrentMarketDataProvider
+public enum ProvidersEnum
 {
     Alpaca,
     Schwab

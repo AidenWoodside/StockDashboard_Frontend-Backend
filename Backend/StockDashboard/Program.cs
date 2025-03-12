@@ -9,8 +9,6 @@ using StockDashboard.Infrastructure.Providers.MarketData;
 using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
 using StockDashboard.Infrastructure.Providers.MarketData.Schwab;
 using StockDashboard.Infrastructure.Providers.Trading.Schwab;
-using StockDashboard.Infrastructure.Repositories;
-using StockDashboard.Infrastructure.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +22,7 @@ services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 services.AddHttpClient();
 
 //Register Providers
+services.Configure<CurrentWebsocketProviderConfigs>(builder.Configuration.GetSection("Providers:CurrentWebsocketProviderConfigs"));
 services.AddSingleton<IWebsocketFactory, WebsocketFactory>();
 
 services.Configure<AlpacaProviderConfigs>(builder.Configuration.GetRequiredSection("Providers:Alpaca"));
@@ -32,6 +31,7 @@ services.AddSingleton<AlpacaWebsocket>();
 services.Configure<SchwabProviderConfigs>(builder.Configuration.GetSection("Providers:Schwab"));
 services.AddSingleton<SchwabWebsocket>();
 
+services.AddScoped<IMarketDataService, MarketDataService>();
 
 services.AddScoped<IAlpacaMarketDataProvider, AlpacaMarketDataProvider>();
 
@@ -42,12 +42,8 @@ services.AddScoped<IWebsocketBase>(provider => provider.GetRequiredService<ISchw
 services.AddScoped<ISchwabTokenProvider, SchwabTokenProvider>();
 services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 
-// Register the Infrastructure
-services.AddScoped<IStockRepository, StockRepository>();
-services.AddScoped<IStockUtility, StockUtility>();
-
 // Register Application and Domain services
-services.AddScoped<IStockService, StockService>();
+services.AddScoped<ITradingService, TradingService>();
 
 services.AddScoped<ISchwabTradingProvider, SchwabTradingProvider>();
 

@@ -1,18 +1,17 @@
-﻿using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
+﻿using Microsoft.Extensions.Options;
+using StockDashboard.Infrastructure.Configs;
+using StockDashboard.Infrastructure.Providers.MarketData.Alpaca;
 using StockDashboard.Infrastructure.Providers.MarketData.Schwab;
 
 namespace StockDashboard.Infrastructure.Providers.MarketData;
 
 public class WebsocketFactory(
     IServiceProvider serviceProvider, 
-    IConfiguration configuration) : IWebsocketFactory
+    IOptions<CurrentWebsocketProviderConfigs> currentWebsocketProvider) : IWebsocketFactory
 {
     public IWebsocketBase CreateWebsocket()
     {
-        // Read the provider setting from configuration
-        string provider = configuration["Providers:CurrentDataProvider"]
-            ?? throw new NullReferenceException("Providers:CurrentDataProvider");
-
+        var provider = currentWebsocketProvider.Value.CurrentWebsocketProvider.ToString();
         switch (provider)
         {
             case "Alpaca":

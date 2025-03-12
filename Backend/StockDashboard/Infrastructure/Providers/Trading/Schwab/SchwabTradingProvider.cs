@@ -23,13 +23,7 @@ public class SchwabTradingProvider(HttpClient httpClient,
 
     public async Task<T> GetAccounts<T>()
     {
-        var headers = new Dictionary<string, string>
-        {
-            { "Accept", "application/json" },
-            { "Authorization", $"Bearer {await schwabTokenProvider.GetAccessToken()}" }
-        };
-        
-        var response = await GetAsync<T>(baseUrl+ "/accounts", headers)
+        var response = await GetAsync<T>(baseUrl+ "/accounts", await AddHeaders())
             ?? throw new NullReferenceException("GetAccounts() returned null");
         
         return mapper.Map<T>(response);
@@ -37,15 +31,18 @@ public class SchwabTradingProvider(HttpClient httpClient,
     
     public async Task<T> GetEncryptedAccounts<T>()
     {
-        var headers = new Dictionary<string, string>
+        var response = await GetAsync<T>(baseUrl+ "/accounts/accountNumbers", await AddHeaders())
+                       ?? throw new NullReferenceException("GetAccounts() returned null");
+        
+        return mapper.Map<T>(response);
+    }
+
+    private async Task<Dictionary<string, string>> AddHeaders()
+    {
+        return new Dictionary<string, string>
         {
             { "Accept", "application/json" },
             { "Authorization", $"Bearer {await schwabTokenProvider.GetAccessToken()}" }
         };
-        
-        var response = await GetAsync<T>(baseUrl+ "/accounts/accountNumbers", headers)
-                       ?? throw new NullReferenceException("GetAccounts() returned null");
-        
-        return mapper.Map<T>(response);
     }
 }

@@ -30,33 +30,16 @@ public class SchwabWebsocket(IOptions<SchwabProviderConfigs> marketData, IMapper
         });
         
         await base.SubscribeStock(byteMsg, stoppingToken);
-        await base.ReceiveUpdate(stoppingToken);
-        await base.ReceiveUpdate(stoppingToken);
-        await base.ReceiveUpdate(stoppingToken);
+        await base.ReceiveUpdate<string>(stoppingToken);
+        await base.ReceiveUpdate<string>(stoppingToken);
+        await base.ReceiveUpdate<string>(stoppingToken);
     }
 
-    public new async Task<List<Stock>> ReceiveUpdate(CancellationToken stoppingToken)
+    public new async Task<T> ReceiveUpdate<T>(CancellationToken stoppingToken)
     {
-        var update = await base.ReceiveUpdate(stoppingToken);
-        var stocks = JsonSerializer.Deserialize<List<Stock>>(update);
+        var update = await base.ReceiveUpdate<QuoteResponse>(stoppingToken);
+        var stocks = mapper.Map<T>(update);
         return stocks;
-    }
-
-    public override async Task<List<Stock>> MapResponseToDomainModel(string response)
-    {
-        var test2 = JToken.Parse(response);
-        var test3 = test2.GroupBy(token => token["T"]?.ToString())
-            .ToDictionary(g => g.Key, g => new JArray(g));
-
-        var model = new Models.BackgroundServiceModels.MarketData();
-
-        if (test3.TryGetValue("q", out var quotes))
-        {
-            model.quoteResponse = mapper.Map<QuoteResponse[]>(quotes);
-            
-        }
-        
-        return mapper.Map<List<Stock>>(model.quoteResponse);;
     }
 
     public Task UnsubscribeStock(string symbol)

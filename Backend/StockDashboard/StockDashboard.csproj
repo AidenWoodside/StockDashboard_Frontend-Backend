@@ -14,8 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Infrastructure\Providers\MarketData\Alpaca\Models\" />
-      <Folder Include="Infrastructure\Providers\MarketData\Schwab\Models\" />
+      <Folder Include="Infrastructure\Models\Alpaca\" />
       <Folder Include="Tests\" />
     </ItemGroup>
 

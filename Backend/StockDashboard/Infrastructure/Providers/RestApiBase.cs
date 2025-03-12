@@ -36,7 +36,7 @@ public abstract class RestApiBase
         var response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
         var jsonData = await response.Content.ReadAsStringAsync();
-        var test = JsonConvert.DeserializeObject<T>(jsonData);
+        var test = JsonConvert.DeserializeObject<T>(jsonData)!;
         
         return JsonConvert.DeserializeObject<T>(jsonData)!;
     }

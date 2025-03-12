@@ -1,11 +1,15 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using StockDashboard.Domain.Hubs;
 using StockDashboard.Domain.Models;
 using StockDashboard.Infrastructure.Providers.MarketData;
 
 namespace StockDashboard.Domain.BackgroundServices;
 
 public class BackgroundMarketDataService(
-    IWebsocketFactory websocketFactory) 
+    IWebsocketFactory websocketFactory,
+    IHubContext<StockHub> hubContext) 
     : BackgroundService
 {
     
@@ -22,10 +26,12 @@ public class BackgroundMarketDataService(
         var websocketBase = websocketFactory.CreateWebsocket();
         
         //Connect websocket
+        Console.WriteLine("Start connection to websocket");
         await websocketBase.Connect(stoppingToken);
         Console.WriteLine("Successfully established connection to websocket");
         
         //subscribe to stocks
+        Console.WriteLine("Start subscribe to stocks");
         await websocketBase.SubscribeStock(_stocks, stoppingToken);
         Console.WriteLine("Successfully subscribed to stocks");
 
@@ -37,8 +43,11 @@ public class BackgroundMarketDataService(
         while (!stoppingToken.IsCancellationRequested)
         {
             //receive async
-            var quote = await websocketBase.ReceiveUpdate(stoppingToken);
-            Console.WriteLine(quote);
+            var quote = await websocketBase.ReceiveUpdate<List<Stock>>(stoppingToken);
+            var output = new StringBuilder();
+            foreach (var stock in quote) output.Append($"Symbol: {stock.Symbol} Price: {stock.Price} ");
+            
+            Console.WriteLine(output.ToString());
             
             //publish to hub if 5 seconds elapsed
             if (stopwatch.ElapsedMilliseconds > 3500)
@@ -49,7 +58,7 @@ public class BackgroundMarketDataService(
                 //push to frontend websocket
                 //does not need to be awaited since we want this loop to be as quick as possible
                 //kick of send task, do no wait for response.
-                SendStockUpdate(await websocketBase.MapResponseToDomainModel(quote));
+                SendStockUpdate(quote, stoppingToken);
             }
         }
         
@@ -57,8 +66,10 @@ public class BackgroundMarketDataService(
         websocketBase.DisconnectWebsocket();
     }
 
-    private static void SendStockUpdate(List<Stock> stock)
+    private void SendStockUpdate(List<Stock> stock, CancellationToken stoppingToken)
     {
-        Console.WriteLine("Sending stock update");
+        var random = new Random();
+        stock[0].Price = random.Next();
+        hubContext.Clients.All.SendAsync("ReceiveStockUpdateQuote", stock.ToArray(), cancellationToken: stoppingToken);
     }
 }

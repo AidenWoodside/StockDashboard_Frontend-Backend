@@ -5,6 +5,9 @@
       <UrlInfo>
         <option name="urlString" value="https://api.swaggerhub.com/apis/ACCOUNTS_1/trader-api_account_access_and_user_preferences/1.0.0/swagger.yaml" />
       </UrlInfo>
+      <UrlInfo>
+        <option name="urlString" value="https://api.swaggerhub.com/apis/ACCOUNTS_1/market-data/1.0.0/swagger.yaml" />
+      </UrlInfo>
     </remoteSpecificationUrls>
   </component>
 </project>
